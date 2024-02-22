@@ -25,6 +25,25 @@ const bookSchema = new mongoose.Schema({
     type: String,
     default: "Roman",
   },
+  ratings: [
+    {
+      userId: {
+        type: String,
+        required: [true, "Le champ 'userId' est obligatoire pour un rating"],
+      },
+    },
+    {
+      grade: {
+        type: Number,
+        required: [true, "Le champ 'grade' est obligatoire pour un rating"],
+        min: 0,
+        max: 5,
+      },
+    },
+  ],
+  averageRating: {
+    type: Number,
+  },
 });
 
 const Book = mongoose.model("Book", bookSchema);

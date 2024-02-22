@@ -1,19 +1,25 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
+const dotenv = require("dotenv");
+const morgan = require("morgan");
 const bookRouter = require("./routes/bookRoutes");
 const authRouter = require("./routes/authRoutes");
+const AppError = require("./utils/appError");
 
 const app = express();
+dotenv.config();
 
 mongoose
-  .connect(
-    "mongodb+srv://daniel:jjOAkIkCSoZb5qpd@cluster0.hyexph1.mongodb.net/grimoire?retryWrites=true&w=majority",
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect(process.env.DB_NAME.replace("<password>", process.env.DB_PASSWORD), {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
 app.use(express.json());
+app.use(morgan("dev"));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -28,7 +34,21 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/images", express.static(path.join(__dirname, "/images")));
 app.use("/api/books", bookRouter);
 app.use("/api/auth", authRouter);
+
+app.all("*", (req, res, next) => {
+  const err = new AppError(
+    `Oups! La route que vous demandez n'existe pas`,
+    404
+  );
+  next(err);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.statusCode || 500).json(err);
+});
 
 module.exports = app;
