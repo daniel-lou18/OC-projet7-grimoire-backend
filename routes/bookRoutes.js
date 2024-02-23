@@ -9,10 +9,10 @@ router
   .get(bookController.getAllBooks)
   .post(auth, multer, bookController.addBook);
 
+router.route("/bestrating").get(bookController.getBestBooks);
+
 router.route("/:bookId").get(bookController.getBook);
 
-router.route("/:bookId/rating").post(bookController.addRating);
-
-router.route("/bestrating").get(bookController.getBestBooks);
+router.route("/:bookId/rating").post(auth, bookController.addRating);
 
 module.exports = router;

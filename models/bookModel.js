@@ -45,12 +45,13 @@ const bookSchema = new mongoose.Schema({
   },
 });
 
-bookSchema.pre("save", function () {
+bookSchema.pre("save", function (next) {
   if (this.isModified("ratings")) {
     this.averageRating =
       this.ratings.reduce((acc, curr) => acc + curr.grade, 0) /
       this.ratings.length;
   }
+  next();
 });
 
 const Book = mongoose.model("Book", bookSchema);

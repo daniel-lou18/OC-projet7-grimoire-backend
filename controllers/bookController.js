@@ -12,7 +12,6 @@ exports.getAllBooks = async (req, res, next) => {
 exports.getBestBooks = async (req, res, next) => {
   try {
     const bestBooks = await Book.find().sort({ averageRating: -1 }).limit(3);
-    console.log(bestBooks);
     res.status(200).json(bestBooks);
   } catch (err) {
     next(err);
@@ -55,7 +54,6 @@ exports.addRating = async (req, res, next) => {
     const book = await Book.findById(bookId);
     book.ratings.push({ userId, grade: rating });
     await book.save();
-    console.log(book);
     res.status(201).json(book);
   } catch (err) {
     next(err);
