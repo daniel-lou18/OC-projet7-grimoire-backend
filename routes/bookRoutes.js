@@ -11,4 +11,8 @@ router
 
 router.route("/:bookId").get(bookController.getBook);
 
+router.route("/:bookId/rating").post(bookController.addRating);
+
+router.route("/bestrating").get(bookController.getBestBooks);
+
 module.exports = router;

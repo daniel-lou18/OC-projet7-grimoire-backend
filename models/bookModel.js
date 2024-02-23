@@ -31,11 +31,9 @@ const bookSchema = new mongoose.Schema({
         type: String,
         required: [true, "Le champ 'userId' est obligatoire pour un rating"],
       },
-    },
-    {
       grade: {
         type: Number,
-        required: [true, "Le champ 'grade' est obligatoire pour un rating"],
+        default: 0,
         min: 0,
         max: 5,
       },
@@ -43,7 +41,16 @@ const bookSchema = new mongoose.Schema({
   ],
   averageRating: {
     type: Number,
+    default: 0,
   },
+});
+
+bookSchema.pre("save", function () {
+  if (this.isModified("ratings")) {
+    this.averageRating =
+      this.ratings.reduce((acc, curr) => acc + curr.grade, 0) /
+      this.ratings.length;
+  }
 });
 
 const Book = mongoose.model("Book", bookSchema);
