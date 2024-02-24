@@ -1,8 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const AppError = require("../utils/appError");
-const { sendError, sendAppError } = require("../utils/sendAppError");
+const { sendAppError } = require("../utils/sendAppError");
 
 exports.signup = async (req, res, next) => {
   try {
@@ -29,7 +28,7 @@ exports.login = async (req, res, next) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return sendAppError("Email ou mot de passe incorrect", 403, next);
+      return sendAppError("Email ou mot de passe incorrect", 401, next);
     }
 
     const passwordIsValid = await bcrypt.compare(password, user.password);
@@ -39,7 +38,7 @@ exports.login = async (req, res, next) => {
       });
       res.status(200).json({ userId: user._id, token });
     } else {
-      return sendAppError("Email ou mot de passe incorrect", 403, next);
+      return sendAppError("Email ou mot de passe incorrect", 401, next);
     }
   } catch (err) {
     next(err);

@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { sendAppError, sendError } = require("../utils/sendAppError");
 
 exports.auth = async (req, res, next) => {
   try {
@@ -9,6 +10,6 @@ exports.auth = async (req, res, next) => {
     next();
   } catch (err) {
     console.error(err);
-    res.status(401).json({ err });
+    sendError(err, 403, next);
   }
 };
