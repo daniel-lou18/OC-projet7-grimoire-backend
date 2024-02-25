@@ -1,5 +1,9 @@
 const Book = require("../models/bookModel");
 const { sendAppError } = require("../utils/sendAppError");
+const {
+  updateWithoutImage,
+  updateWithImage,
+} = require("./bookControllerHelpers");
 
 exports.getAllBooks = async (req, res, next) => {
   try {
@@ -32,7 +36,7 @@ exports.getBook = async (req, res, next) => {
 exports.addBook = async (req, res, next) => {
   try {
     if (!req.file)
-      sendAppError("Il est obligatoire d'ajouter une image", 400, next);
+      return sendAppError("Il est obligatoire d'ajouter une image", 400, next);
     const bookData = JSON.parse(req.body.book);
     delete bookData.userId;
     const newBook = new Book({
@@ -53,18 +57,20 @@ exports.addBook = async (req, res, next) => {
 exports.updateBook = async (req, res, next) => {
   try {
     if (!req.file) {
-      const bookData = req.body;
-      const { bookId } = req.params;
-      const updatedBook = await Book.findByIdAndUpdate(
-        bookId,
-        {
-          $set: { ...bookData },
-        },
-        { runValidators: true, new: true }
-      );
-      console.log(updatedBook);
-      res.status(200).json(updatedBook);
+      await updateWithoutImage(req, res, next);
+    } else {
+      await updateWithImage(req, res, next);
     }
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteBook = async (req, res, next) => {
+  try {
+    const { bookId } = req.params;
+    await Book.findByIdAndDelete(bookId);
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
