@@ -42,6 +42,7 @@ exports.getBook = async (req, res, next) => {
 
 exports.addBook = async (req, res, next) => {
   try {
+    console.log(req.file);
     if (!req.file)
       return sendAppError("Il est obligatoire d'ajouter une image", 400, next);
     const bookData = JSON.parse(req.body.book);
@@ -85,7 +86,7 @@ exports.updateBook = async (req, res, next) => {
       { runValidators: true, new: true }
     );
     console.log(updatedBook);
-    res.status(200).json(updatedBook);
+    res.status(200).json({ message: "Le livre a été mis à jour" });
   } catch (err) {
     next(err);
   }
@@ -97,7 +98,7 @@ exports.deleteBook = async (req, res, next) => {
     if (!book) return;
     await deleteImage(book);
     await Book.findByIdAndDelete(book._id);
-    res.status(204).send();
+    res.status(200).json({ message: "Le livre a été supprimé" });
   } catch (err) {
     next(err);
   }
@@ -108,6 +109,24 @@ exports.addRating = async (req, res, next) => {
     const { bookId } = req.params;
     const { userId, rating } = req.body;
     const book = await Book.findById(bookId);
+    if (!book)
+      return sendAppError(
+        "Le livre que vous voulez noter n'existe pas",
+        400,
+        next
+      );
+    if (req.auth.userId !== userId)
+      return sendAppError(
+        "Vous ne pouvez pas créer une note avec l'ID d'un autre utilisateur",
+        403,
+        next
+      );
+    if (book.ratings.find((rating) => rating.userId === userId))
+      return sendAppError(
+        "Vous ne pouvez pas noter le même livre plusieurs fois",
+        400,
+        next
+      );
     book.ratings.push({ userId, grade: rating });
     await book.save();
     res.status(201).json(book);

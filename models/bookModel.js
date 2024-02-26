@@ -37,11 +37,19 @@ const bookSchema = new mongoose.Schema({
         min: 1,
         max: 5,
       },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
   averageRating: {
     type: Number,
     default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

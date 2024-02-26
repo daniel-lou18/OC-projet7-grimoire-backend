@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
     required: [true, "Le champ 'password' est obligatoire"],
     select: false,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 userSchema.plugin(uniqueValidator);
