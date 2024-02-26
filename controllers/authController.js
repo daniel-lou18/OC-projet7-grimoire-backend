@@ -34,7 +34,7 @@ exports.login = async (req, res, next) => {
       );
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return sendAppError("Email ou mot de passe incorrect", 401, next);
     }

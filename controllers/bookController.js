@@ -1,9 +1,6 @@
 const Book = require("../models/bookModel");
 const { sendAppError } = require("../utils/sendError");
-const {
-  updateWithoutImage,
-  updateWithImage,
-} = require("./bookControllerHelpers");
+const { deleteImage, verifyUserId } = require("./bookControllerHelpers");
 
 exports.getAllBooks = async (req, res, next) => {
   try {
@@ -66,11 +63,29 @@ exports.addBook = async (req, res, next) => {
 
 exports.updateBook = async (req, res, next) => {
   try {
-    if (!req.file) {
-      await updateWithoutImage(req, res, next);
-    } else {
-      await updateWithImage(req, res, next);
-    }
+    const book = await verifyUserId(req, next);
+    if (!book) return;
+
+    const bookData = req.file
+      ? {
+          ...JSON.parse(req.body.book),
+          imageUrl: `${req.protocol}://${req.get("host")}/images/${
+            req.file.filename
+          }`,
+        }
+      : { ...req.body };
+    delete bookData.userId;
+    req.file && (await deleteImage(book));
+
+    const updatedBook = await Book.findByIdAndUpdate(
+      book._id,
+      {
+        $set: { ...bookData },
+      },
+      { runValidators: true, new: true }
+    );
+    console.log(updatedBook);
+    res.status(200).json(updatedBook);
   } catch (err) {
     next(err);
   }
@@ -78,8 +93,10 @@ exports.updateBook = async (req, res, next) => {
 
 exports.deleteBook = async (req, res, next) => {
   try {
-    const { bookId } = req.params;
-    await Book.findByIdAndDelete(bookId);
+    const book = await verifyUserId(req, next);
+    if (!book) return;
+    await deleteImage(book);
+    await Book.findByIdAndDelete(book._id);
     res.status(204).send();
   } catch (err) {
     next(err);

@@ -33,8 +33,8 @@ const bookSchema = new mongoose.Schema({
       },
       grade: {
         type: Number,
-        default: 0,
-        min: 0,
+        default: 3,
+        min: 1,
         max: 5,
       },
     },
@@ -47,9 +47,10 @@ const bookSchema = new mongoose.Schema({
 
 bookSchema.pre("save", function (next) {
   if (this.isModified("ratings")) {
-    this.averageRating =
+    this.averageRating = (
       this.ratings.reduce((acc, curr) => acc + curr.grade, 0) /
-      this.ratings.length;
+      this.ratings.length
+    ).toFixed(0);
   }
   next();
 });
