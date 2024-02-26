@@ -1,11 +1,19 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const { sendAppError } = require("../utils/sendAppError");
+const { sendAppError } = require("../utils/sendError");
 
 exports.signup = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return sendAppError(
+        "Veuillez saisir votre email ou mot de passe",
+        400,
+        next
+      );
+    }
+
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hash });
     console.log(user);

@@ -1,5 +1,5 @@
 const Book = require("../models/bookModel");
-const { sendAppError } = require("../utils/sendAppError");
+const { sendAppError } = require("../utils/sendError");
 const {
   updateWithoutImage,
   updateWithImage,
@@ -8,6 +8,8 @@ const {
 exports.getAllBooks = async (req, res, next) => {
   try {
     const books = await Book.find();
+    if (!books || books.length === 0)
+      return sendAppError("Nous n'avons pas retrouvé de livres", 404, next);
     res.status(200).json(books);
   } catch (err) {
     next(err);
@@ -17,6 +19,12 @@ exports.getAllBooks = async (req, res, next) => {
 exports.getBestBooks = async (req, res, next) => {
   try {
     const bestBooks = await Book.find().sort({ averageRating: -1 }).limit(3);
+    if (!bestBooks || bestBooks.length === 0)
+      return sendAppError(
+        "Impossible de récupérer les livres les mieux notés",
+        404,
+        next
+      );
     res.status(200).json(bestBooks);
   } catch (err) {
     next(err);
@@ -27,6 +35,8 @@ exports.getBook = async (req, res, next) => {
   try {
     const { bookId } = req.params;
     const book = await Book.findById(bookId);
+    if (!book)
+      return sendAppError("Le livre que vous demandez n'existe pas", 400, next);
     res.status(200).json(book);
   } catch (err) {
     next(err);
