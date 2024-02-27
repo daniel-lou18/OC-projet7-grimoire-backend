@@ -8,7 +8,11 @@ exports.auth = async (req, _, next) => {
       req.headers.authorization.startsWith("Bearer") &&
       req.headers.authorization.split(" ")[1];
     if (!token)
-      sendAppError("Authentification requise : JWT token manquant", 401, next);
+      return sendAppError(
+        "Vous n'êtes pas authentifié : JWT token manquant",
+        401,
+        next
+      );
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const { userId } = decodedToken;
     req.auth = { userId };

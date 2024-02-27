@@ -48,6 +48,10 @@ app.all("*", (req, res, next) => {
 
 app.use((err, req, res, next) => {
   console.error(err);
+  if (err.name === "ValidationError" || err.name === "CastError")
+    return res.status(400).json(err);
+  if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError")
+    return res.status(401).json(err);
   res.status(err.statusCode || 500).json(err);
 });
 

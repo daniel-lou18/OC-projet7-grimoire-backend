@@ -19,7 +19,7 @@ async function uploadImage(req, _, next) {
   if (!req.file) return next();
   const { buffer, originalname, mimetype } = req.file;
 
-  if (MIME_TYPES.indexOf(mimetype))
+  if (MIME_TYPES.indexOf(mimetype) === -1)
     return sendAppError(
       "Le format de votre fichier n'est pas pris en charge. L'image doit être au format JPEG, JPG, PNG, GIF, BMP ou WEBP",
       400,

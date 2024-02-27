@@ -14,8 +14,7 @@ exports.signup = async (req, res, next) => {
       );
     }
 
-    const hash = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, password: hash });
+    const user = await User.create({ email, password });
     console.log(user);
     res.status(201).json({ message: "L'utilisateur a été créé" });
   } catch (err) {
