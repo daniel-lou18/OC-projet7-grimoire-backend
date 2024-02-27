@@ -1,48 +1,44 @@
-const http = require("http");
 const app = require("./app");
+const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 
-const normalizePort = (val) => {
-  const port = parseInt(val, 10);
+dotenv.config();
 
-  if (isNaN(port)) {
-    return val;
+const PORT = process.env.PORT || 4000;
+
+process.on("uncaughtException", (err) =>
+  gracefulShutdown("uncaughtException", err)
+);
+
+mongoose
+  .connect(process.env.DB_NAME.replace("<password>", process.env.DB_PASSWORD))
+  .then(() => console.log("Connexion à MongoDB réussie !"));
+
+const server = app.listen(PORT, () =>
+  console.log(`Server is listening on port ${PORT}`)
+);
+
+// console.log(x);
+
+function gracefulShutdown(signalOrEvent, err) {
+  err
+    ? console.error(`${signalOrEvent}: ${err}`)
+    : console.error(" " + signalOrEvent);
+
+  if (signalOrEvent === "uncaughtException") {
+    console.log("Le serveur a été arrêté");
+    return process.exit(1);
   }
-  if (port >= 0) {
-    return port;
-  }
-  return false;
-};
-const port = normalizePort(process.env.PORT || "4000");
-app.set("port", port);
 
-const errorHandler = (error) => {
-  if (error.syscall !== "listen") {
-    throw error;
-  }
-  const address = server.address();
-  const bind =
-    typeof address === "string" ? "pipe " + address : "port: " + port;
-  switch (error.code) {
-    case "EACCES":
-      console.error(bind + " requires elevated privileges.");
-      process.exit(1);
-      break;
-    case "EADDRINUSE":
-      console.error(bind + " is already in use.");
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-};
+  console.log("Arrêt du serveur en cours...");
+  server.close(() => {
+    console.log("Le serveur a été arrêté gracieusement");
+    process.exit(1);
+  });
+}
 
-const server = http.createServer(app);
-
-server.on("error", errorHandler);
-server.on("listening", () => {
-  const address = server.address();
-  const bind = typeof address === "string" ? "pipe " + address : "port " + port;
-  console.log("Listening on " + bind);
-});
-
-server.listen(port);
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGINT"));
+process.on("unhandledRejection", (err) =>
+  gracefulShutdown("unhandledRejection", err)
+);

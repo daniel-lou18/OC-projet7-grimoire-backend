@@ -8,15 +8,6 @@ const authRouter = require("./routes/authRoutes");
 const AppError = require("./utils/appError");
 
 const app = express();
-dotenv.config();
-
-mongoose
-  .connect(process.env.DB_NAME.replace("<password>", process.env.DB_PASSWORD), {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("Connexion à MongoDB réussie !"))
-  .catch(() => console.log("Connexion à MongoDB échouée !"));
 
 app.use(express.json());
 app.use(morgan("dev"));
