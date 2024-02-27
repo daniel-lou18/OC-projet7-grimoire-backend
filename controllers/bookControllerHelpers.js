@@ -8,7 +8,7 @@ exports.verifyUserId = async function (req, next) {
   const book = await Book.findById(bookId);
   if (book.userId !== authUserId) {
     sendAppError(
-      "User ID actuel ne correspond pas à l'user ID du livre",
+      "Vous n'êtes pas autorisé à modifier le livre car votre user ID ne correspond pas à l'user ID associé au livre",
       403,
       next
     );
@@ -20,5 +20,6 @@ exports.verifyUserId = async function (req, next) {
 exports.deleteImage = async function (book) {
   const index = book.imageUrl?.indexOf("images/");
   const path = index !== -1 ? book.imageUrl.substring(index) : null;
+  console.log(path);
   path && (await fs.unlink(path));
 };
