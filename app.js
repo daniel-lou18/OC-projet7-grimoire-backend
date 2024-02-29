@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const bookRouter = require("./routes/bookRoutes");
 const authRouter = require("./routes/authRoutes");
 const AppError = require("./utils/appError");
+const { sendAppError } = require("./utils/sendError");
 
 const app = express();
 
@@ -28,13 +29,9 @@ app.use("/images", express.static(path.join(__dirname, "/images")));
 app.use("/api/books", bookRouter);
 app.use("/api/auth", authRouter);
 
-app.all("*", (req, res, next) => {
-  const err = new AppError(
-    `Oups! La route que vous demandez n'existe pas`,
-    404
-  );
-  next(err);
-});
+app.all("*", (req, res, next) =>
+  sendAppError(`Oups! La route que vous demandez n'existe pas`, 404, next)
+);
 
 app.use((err, req, res, next) => {
   console.error(err);
