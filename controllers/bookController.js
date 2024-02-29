@@ -64,7 +64,8 @@ exports.addBook = async (req, res, next) => {
 
 exports.updateBook = async (req, res, next) => {
   try {
-    let book = await verifyUserId(req, next);
+    const { bookId } = req.params;
+    let book = await verifyUserId(bookId, req, next);
     if (!book) return;
 
     const bookData = req.file
@@ -78,9 +79,11 @@ exports.updateBook = async (req, res, next) => {
     delete bookData.userId;
     req.file && (await deleteImage(book, next));
 
-    book.set(bookData);
-    const updatedBook = await book.save();
-    console.log(updatedBook);
+    await Book.updateOne(
+      { _id: bookId },
+      { ...bookData, _id: bookId },
+      { runValidators: true }
+    );
     res.status(200).json({ message: "Le livre a été mis à jour" });
   } catch (err) {
     next(err);
@@ -89,10 +92,11 @@ exports.updateBook = async (req, res, next) => {
 
 exports.deleteBook = async (req, res, next) => {
   try {
-    const book = await verifyUserId(req, next);
+    const { bookId } = req.params;
+    const book = await verifyUserId(bookId, req, next);
     if (!book) return;
     await deleteImage(book, next);
-    await Book.findByIdAndDelete(book._id);
+    await Book.deleteOne({ _id: bookId });
     res.status(200).json({ message: "Le livre a été supprimé" });
   } catch (err) {
     next(err);
@@ -119,7 +123,7 @@ exports.addRating = async (req, res, next) => {
     if (book.ratings.find((rating) => rating.userId === userId))
       return sendAppError(
         "Vous ne pouvez pas noter le même livre plusieurs fois",
-        400,
+        401,
         next
       );
     book.ratings.push({ userId, grade: rating });

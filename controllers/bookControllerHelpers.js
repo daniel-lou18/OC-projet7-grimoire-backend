@@ -2,14 +2,13 @@ const fs = require("fs").promises;
 const Book = require("../models/bookModel");
 const { sendAppError } = require("../utils/sendError");
 
-exports.verifyUserId = async function (req, next) {
+exports.verifyUserId = async function (bookId, req, next) {
   try {
-    const { bookId } = req.params;
     const authUserId = req.auth.userId;
     const book = await Book.findById(bookId);
     if (book.userId !== authUserId) {
       sendAppError(
-        "Vous n'êtes pas autorisé à modifier le livre car votre user ID ne correspond pas à l'user ID associé au livre",
+        "Vous n'êtes pas autorisé à modifier/supprimer le livre car votre user ID ne correspond pas à l'user ID associé au livre",
         403,
         next
       );
