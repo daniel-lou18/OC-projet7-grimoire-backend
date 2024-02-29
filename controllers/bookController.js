@@ -64,7 +64,7 @@ exports.addBook = async (req, res, next) => {
 
 exports.updateBook = async (req, res, next) => {
   try {
-    const book = await verifyUserId(req, next);
+    let book = await verifyUserId(req, next);
     if (!book) return;
 
     const bookData = req.file
@@ -76,15 +76,10 @@ exports.updateBook = async (req, res, next) => {
         }
       : { ...req.body };
     delete bookData.userId;
-    req.file && (await deleteImage(book));
+    req.file && (await deleteImage(book, next));
 
-    const updatedBook = await Book.findByIdAndUpdate(
-      book._id,
-      {
-        $set: { ...bookData },
-      },
-      { runValidators: true, new: true }
-    );
+    book.set(bookData);
+    const updatedBook = await book.save();
     console.log(updatedBook);
     res.status(200).json({ message: "Le livre a été mis à jour" });
   } catch (err) {
@@ -96,7 +91,7 @@ exports.deleteBook = async (req, res, next) => {
   try {
     const book = await verifyUserId(req, next);
     if (!book) return;
-    await deleteImage(book);
+    await deleteImage(book, next);
     await Book.findByIdAndDelete(book._id);
     res.status(200).json({ message: "Le livre a été supprimé" });
   } catch (err) {

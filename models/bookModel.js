@@ -68,7 +68,7 @@ bookSchema.pre("save", function (next) {
     this.averageRating = (
       this.ratings.reduce((acc, curr) => acc + curr.grade, 0) /
       this.ratings.length
-    ).toFixed(0);
+    ).toFixed(1);
   }
   next();
 });

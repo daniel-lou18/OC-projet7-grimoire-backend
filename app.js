@@ -1,7 +1,5 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const path = require("path");
-const dotenv = require("dotenv");
 const morgan = require("morgan");
 const bookRouter = require("./routes/bookRoutes");
 const authRouter = require("./routes/authRoutes");
@@ -26,6 +24,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/images", express.static(path.join(__dirname, "/images")));
+
 app.use("/api/books", bookRouter);
 app.use("/api/auth", authRouter);
 
