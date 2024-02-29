@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const { sendAppError } = require("../utils/sendError");
+const { promisifiedSign } = require("../utils/promisifyJwt");
 
 exports.signup = async (req, res, next) => {
   try {
@@ -40,9 +40,13 @@ exports.login = async (req, res, next) => {
 
     const passwordIsValid = await bcrypt.compare(password, user.password);
     if (passwordIsValid) {
-      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "24h",
-      });
+      const token = await promisifiedSign(
+        { userId: user._id },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "24h",
+        }
+      );
       res.status(200).json({ userId: user._id, token });
     } else {
       return sendAppError("Email ou mot de passe incorrect", 401, next);

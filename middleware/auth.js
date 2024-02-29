@@ -1,5 +1,5 @@
-const jwt = require("jsonwebtoken");
 const { sendAppError, sendError } = require("../utils/sendError");
+const { promisifiedVerify } = require("../utils/promisifyJwt");
 
 exports.auth = async (req, _, next) => {
   try {
@@ -13,7 +13,7 @@ exports.auth = async (req, _, next) => {
         401,
         next
       );
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = await promisifiedVerify(token, process.env.JWT_SECRET);
     const { userId } = decodedToken;
     req.auth = { userId };
     next();

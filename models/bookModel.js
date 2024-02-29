@@ -26,8 +26,7 @@ const bookSchema = new mongoose.Schema({
     default: "Roman",
     set: function (value) {
       // il faut utiliser 'set' car juste mettre une valeur par défaut ne marche pas quand le formulaire est envoyé sans saisir le genre
-      if (value === "") return "Roman";
-      else return value;
+      return value || "Roman";
     },
   },
   ratings: [
@@ -43,8 +42,7 @@ const bookSchema = new mongoose.Schema({
         default: 3,
         set: function (value) {
           // valeur par défaut en absence de notation dans le formulaire : 3
-          if (value === 0) return 3;
-          else return value;
+          return value || 3;
         },
       },
       createdAt: {
