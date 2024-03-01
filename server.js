@@ -18,8 +18,6 @@ const server = app.listen(PORT, () =>
   console.log(`Server is listening on port ${PORT}`)
 );
 
-// console.log(x);
-
 function gracefulShutdown(signalOrEvent, err) {
   err
     ? console.error(`${signalOrEvent}: ${err}`)

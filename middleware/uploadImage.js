@@ -25,19 +25,23 @@ async function uploadImage(req, _, next) {
       400,
       next
     );
-
   console.log(req.file);
-  const filename = `${path
-    .parse(originalname)
-    .name.split(" ")
-    .join("_")}_${Date.now()}.webp`;
 
-  await sharp(buffer)
-    .webp({ quality: 20 })
-    .toFile("./images/" + filename);
+  try {
+    const filename = `${path
+      .parse(originalname)
+      .name.split(" ")
+      .join("_")}_${Date.now()}.webp`;
 
-  req.file.filename = filename;
-  next();
+    await sharp(buffer)
+      .webp({ quality: 20 })
+      .toFile("./images/" + filename);
+
+    req.file.filename = filename;
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
 module.exports = { initMulter, uploadImage };
