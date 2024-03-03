@@ -36,7 +36,7 @@ function gracefulShutdown(signalOrEvent, err) {
 }
 
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
-process.on("SIGTERM", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("unhandledRejection", (err) =>
   gracefulShutdown("unhandledRejection", err)
 );
