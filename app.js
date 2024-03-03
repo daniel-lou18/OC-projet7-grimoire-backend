@@ -1,9 +1,11 @@
 const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
+const helmet = require("helmet");
+const cors = require("cors");
+
 const bookRouter = require("./routes/bookRoutes");
 const authRouter = require("./routes/authRoutes");
-const AppError = require("./utils/appError");
 const { sendAppError } = require("./utils/sendError");
 
 const app = express();
@@ -11,18 +13,12 @@ const app = express();
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-  );
-  next();
-});
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
+app.use(cors());
 
 app.use("/images", express.static(path.join(__dirname, "/images")));
 
